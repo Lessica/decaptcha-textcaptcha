@@ -8,7 +8,7 @@ use Exporter qw(import);
 use Lingua::EN::Words2Nums;
 use List::Util qw(first max min);
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 $VERSION = eval $VERSION;
 
 our @EXPORT = qw(decaptcha);
@@ -61,6 +61,7 @@ sub decaptcha {
     }
     if ($lq =~ /^which word starts with "(?<c>.)" from the list: (?<l>.*?)\?$/
         or $lq =~ /which word from list "(?<l>.*?)" has "(?<c>.)" as a first letter\?$/
+        or $lq =~ /which word from the list "(?<l>.*?)" has "(?<c>.)" as a first letter\?$/
         or $lq =~ /^what word from "(?<l>.*?)" begins with "(?<c>.)"\?$/
         or $lq =~ /^(?<l>.*?): the word starting with "(?<c>.)" is\?$/
     ) {
@@ -70,6 +71,7 @@ sub decaptcha {
         or $lq =~ /^(?<l>.*?): the word containing the letter "(?<c>[a-z])" is\?$/
         or $lq =~ /^what word from "(?<l>.*?)" contains the letter "(?<c>[a-z])"\?$/
         or $lq =~ /^which word from list "(?<l>.*?)" contains the letter "(?<c>[a-z])"\?$/
+        or $lq =~ /^which word from the list "(?<l>.*?)" contains the letter "(?<c>[a-z])"\?$/
     ) {
         return first { 0 <= index $_, $+{c} } split /,\s*/, $+{l};
     }
@@ -126,25 +128,25 @@ sub decaptcha {
     }
 
     # Colors
-    return $1 if $lq =~ /^the colour of a (\w+) \S+ is\?$/
-        or $lq =~ /^the (\w+) \S+ is what colour\?$/
-        or $lq =~ /^if the \S+ is (\w+), what colour is it\?$/;
-    if ($lq =~ /^how many colours in the list (.*?)\?$/
-        or $lq =~ /^the list (.*?) contains how many colours\?$/
-        or $lq =~ /^(.*?): how many colours in the list\?$/
+    return $1 if $lq =~ /^the colou?r of a (\w+) \S+ is\?$/
+        or $lq =~ /^the (\w+) \S+ is what colou?r\?$/
+        or $lq =~ /^if the \S+ is (\w+), what colou?r is it\?$/;
+    if ($lq =~ /^how many colou?rs in the list (.*?)\?$/
+        or $lq =~ /^the list (.*?) contains how many colou?rs\?$/
+        or $lq =~ /^(.*?): how many colou?rs in the list\?$/
     ) {
         return 0 + grep { $colors{$_} } split /\W+/, $1;
     }
-    if ($lq =~ /^which of these is a colour: (.*?)\?$/
-        or $lq =~ /^which of (.*?) is a colour\?$/
-        or $lq =~ /^(.*?): the colour is\?$/
-        or $lq =~ /^the colour in the list (.*?) is\?$/
+    if ($lq =~ /^which of these is a colou?r: (.*?)\?$/
+        or $lq =~ /^which of (.*?) is a colou?r\?$/
+        or $lq =~ /^(.*?): the colou?r is\?$/
+        or $lq =~ /^the colou?r in the list (.*?) is\?$/
     ) {
         return first { $colors{$_} } split /\W+/, $1;
     }
-    if ($lq =~ /^what is the (?<p>\d+)\S+ colour in the list (?<l>.*?)\?$/
-        or $lq =~ /^the (?<p>\d+)\S+ colour in (?<l>.*?) is\?$/
-        or $lq =~ /^(?<l>.*?): the (?<p>\d+)\S+ colour is\?$/
+    if ($lq =~ /^what is the (?<p>\d+)\S+ colou?r in the list (?<l>.*?)\?$/
+        or $lq =~ /^the (?<p>\d+)\S+ colou?r in (?<l>.*?) is\?$/
+        or $lq =~ /^(?<l>.*?): the (?<p>\d+)\S+ colou?r is\?$/
     ) {
         return (grep { $colors{$_} } split /\W+/, $+{l})[ $+{p} - 1 ];
     }
